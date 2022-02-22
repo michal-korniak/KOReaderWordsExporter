@@ -6,7 +6,7 @@ namespace KoReaderWordsExporter
     {
         public static string RemoveNewLinesCharacters(this string s)
         {
-            return Regex.Replace(s, @"\t|\n|\r", "");
+            return Regex.Replace(s, @"\t|\n|\r|(\\\n)", " ");
         }
     }
 }
