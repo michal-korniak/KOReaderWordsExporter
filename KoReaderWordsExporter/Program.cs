@@ -1,5 +1,6 @@
 ﻿using KoReaderWordsExporter;
 using Microsoft.Extensions.Configuration;
+using Renci.SshNet;
 using System.Text.RegularExpressions;
 
 namespace MyApp
@@ -31,7 +32,8 @@ namespace MyApp
                 userName: configurationRoot["Username"],
                 password: configurationRoot["Password"],
                 filePath: configurationRoot["FilePath"],
-                outputDirectory: configurationRoot["OutputDirectory"]
+                outputDirectory: configurationRoot["OutputDirectory"],
+                port: int.Parse(configurationRoot["Port"])
             );
 
             return config;
@@ -39,16 +41,14 @@ namespace MyApp
 
         static string DownloadFile(Config config)
         {
-            //using SftpClient sftp = new SftpClient(config.Host, config.UserName, config.Password);
-            //sftp.Connect();
-            //using MemoryStream fileMemoryStream = new MemoryStream();
-            //sftp.DownloadFile(config.FilePath, fileMemoryStream);
-            //byte[] fileBytes = fileMemoryStream.ToArray();
-            //string content = System.Text.Encoding.UTF8.GetString(fileBytes);
+            using SftpClient sftp = new SftpClient(config.Host, config.Port, config.UserName, config.Password);
+            sftp.Connect();
+            using MemoryStream fileMemoryStream = new MemoryStream();
+            sftp.DownloadFile(config.FilePath, fileMemoryStream);
+            byte[] fileBytes = fileMemoryStream.ToArray();
+            string content = System.Text.Encoding.UTF8.GetString(fileBytes);
 
-            //return content;
-
-            return File.ReadAllText("lookup_history.lua");
+            return content;
         }
 
         static IEnumerable<WordEntry> MapFileContentToWordEntries(string fileContent)
@@ -80,8 +80,9 @@ namespace MyApp
         static IEnumerable<WordEntry> CleanWordEntries(IEnumerable<WordEntry> wordEntries)
         {
             var cleanedWordEntries = wordEntries
+             .OrderByDescending(x => x.Date)
              .GroupBy(wordEntry => wordEntry.Word)
-             .Select(group => group.OrderByDescending(x => x.Date).First())
+             .Select(group => group.First())
              .Select(wordEntry => new WordEntry()
              {
                  Word = wordEntry.Word.RemoveNewLinesCharacters(),
