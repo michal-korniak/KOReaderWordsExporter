@@ -85,7 +85,7 @@ namespace MyApp
              .Select(group => group.First())
              .Select(wordEntry => new WordEntry()
              {
-                 Word = wordEntry.Word.RemoveNewLinesCharacters(),
+                 Word = wordEntry.Word.RemoveNewLinesCharacters().Replace("↑", ""),
                  BookTitle = wordEntry.BookTitle,
                  Date = wordEntry.Date
              })
