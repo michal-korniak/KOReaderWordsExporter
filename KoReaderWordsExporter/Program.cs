@@ -16,7 +16,7 @@ namespace MyApp
             var wordEntries = MapFileContentToWordEntries(fileContent);
             var cleanedWordEntries = CleanWordEntries(wordEntries);
             Console.WriteLine("Exporting to CSV...");
-            ExportWordEntriesToCsv(cleanedWordEntries, config.OutputDirectory);
+            ExportWordEntriesToFile(cleanedWordEntries, config.OutputDirectory);
             Console.WriteLine("Task finished.");
             Console.ReadKey();
         }
@@ -95,9 +95,9 @@ namespace MyApp
             return cleanedWordEntries;
         }
 
-        static void ExportWordEntriesToCsv(IEnumerable<WordEntry> wordEntries, string directoryPath)
+        static void ExportWordEntriesToFile(IEnumerable<WordEntry> wordEntries, string directoryPath)
         {
-            string fileName = DateTime.Now.ToString("yyyy-MM-dd_HH-mm") + ".csv";
+            string fileName = DateTime.Now.ToString("yyyy-MM-dd_HH-mm") + ".dump";
             string filePath = Path.Combine(directoryPath, fileName);
             if (!Directory.Exists(directoryPath))
             {
@@ -106,7 +106,7 @@ namespace MyApp
             using StreamWriter streamWriter = File.CreateText(filePath);
             foreach (var wordEntry in wordEntries)
             {
-                streamWriter.WriteLine(String.Join(',', wordEntry.Date, wordEntry.BookTitle, wordEntry.Word));
+                streamWriter.WriteLine(String.Join('|', wordEntry.Date, wordEntry.BookTitle, wordEntry.Word));
             }
         }
 
